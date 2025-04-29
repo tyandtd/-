@@ -1,7 +1,7 @@
 %% 初始控制，和基本参数生成
 clear
 clc
-f = 600;aph = 1.1; s = 1; u0 = 320; v0 = 240;
+f = 600;aph = 1.1; s =1; u0 = 320; v0 = 240;
 K = [aph*f s u0 ; 0 f v0 ; 0 0 1];%生成初始参数
 c_point_T = [20,50,50,1];
 % 设置一个外参数
@@ -13,12 +13,12 @@ c_point = [c_point(1),c_point(2),c_point(3),1];
 %% 球生成
 %半径
 sphere1_r = 40;
-sphere2_r = 37;
-sphere3_r = 35;
+sphere2_r = 30;
+sphere3_r = 30;
 %投影球
 sphere1_c = [1,0,0,1];
 sphere2_c = [-30,-10,20,1];
-sphere3_c = [20,-30,50,1];
+sphere3_c = [20,-50,50,1];
 %投影圆上的点
 %确定取圆面上的点，相机位置
 sphere1_c2c = c_point - sphere1_c;
@@ -53,14 +53,28 @@ sphere3_d = sphere3_r*sphere3_d + sphere3_c';
 
 %plot3(sphere3_d(1,:),sphere3_d(2,:),sphere3_d(3,:),sphere2_d(1,:),sphere2_d(2,:),sphere2_d(3,:),sphere1_d(1,:),sphere1_d(2,:),sphere1_d(3,:));
 %% 投影圆映射到镜头变为椭圆
+
+K_eva = zeros(3);
+
+err_n = zeros(3,dot_num);
+err_var = 25;
+kk=0;
+
+eq = 1000;
+for jjj = 1:eq
+%jjj
 sphere1_d_c = K *RTMat1* sphere1_d;
 sphere2_d_c = K *RTMat1* sphere2_d;
 sphere3_d_c = K *RTMat1* sphere3_d;
-
+% K_eva = zeros(3);
+% 
+% err_n = zeros(3,dot_num);
+% err_var = 1;
+% 
+% eq = 100;
+% for jjj = 1:eq
 
 err_n = zeros(3,dot_num);
-err_var = 100;
-
 err_n(1:2,:) = randn(2,dot_num)*sqrt(err_var);
 sphere1_d_c = sphere1_d_c /sphere1_d_c(3) + err_n;
 err_n(1:2,:) = randn(2,dot_num)*sqrt(err_var);
@@ -74,13 +88,13 @@ sphere3_d_c = sphere3_d_c /sphere3_d_c(3) + err_n;
 % sphere2_d_c = sphere2_d_c /sphere2_d_c(3);
 % 
 % sphere3_d_c = sphere3_d_c /sphere3_d_c(3) ;
-
+%hold on
 plot(sphere1_d_c(1,:),sphere1_d_c(2,:),'d',sphere2_d_c(1,:),sphere2_d_c(2,:),'d',sphere3_d_c(1,:),sphere3_d_c(2,:),'d');
 
 
-K_eva = zeros(3);
-eq = 100;
-for jjj = 1:eq
+% eq = 100;
+% for jjj = 1:eq
+
     %% 椭圆拟合算法
      
     ellipse1 = getCMat(sphere1_d_c);
@@ -160,19 +174,22 @@ for jjj = 1:eq
     V = V(:,end);
     % step3: 使用cholesky分解求解K
     circleK = getKMat(V);
-    
-    
+    if ~isreal(circleK)
+        kk=kk+1;
+        continue
+    end
     K_eva = circleK+K_eva;
     K_look = K_eva/jjj;
+
 end
 
 
-K_eva = K_eva / eq;
+K_eva = K_eva / (eq-kk);
 % step4: 计算误差
 disp('使用圆环点的误差：')
 disp( K_eva);
 disp('使用圆环点的误差的比：')
-disp((K - K_eva)./K);
+disp(abs(K - K_eva)./K);
 
 
 
