@@ -13,14 +13,15 @@ c_point = [c_point(1),c_point(2),c_point(3),1];
 %aaa=RTMat1*c_point'
 
 %% 球生成
+
 %半径
-sphere1_r =20;
-sphere2_r = 30;
-sphere3_r = 30;
+sphere1_r = 1;
+sphere2_r = 1;
+sphere3_r = 1;
 %投影球球心
-sphere1_c = [51,0,0,1];
-sphere2_c = [-30,-10,20,1];
-sphere3_c = [20,-50,50,1];
+sphere1_c = [5,0,100,2]/2;
+sphere2_c = [-4,-1,100,2]/2;
+sphere3_c = [5,-5,100,2]/2;
 
 
 %投影圆上的点
@@ -33,7 +34,7 @@ sphere1_c2c = sphere1_c2c/sqrt(sphere1_c2c*sphere1_c2c');
 sphere2_c2c = sphere2_c2c/sqrt(sphere2_c2c*sphere2_c2c');
 sphere3_c2c = sphere3_c2c/sqrt(sphere3_c2c*sphere3_c2c');
 %确定圆上的任意一条单位向量
-danwei1 = [-sphere1_c2c(2)/sphere1_c2c(1),1,0];
+danwei1 = [1,0,-sphere1_c2c(1)/sphere1_c2c(3)];
 danwei2 = [-sphere2_c2c(2)/sphere2_c2c(1),1,0];
 danwei3 = [-sphere3_c2c(2)/sphere3_c2c(1),1,0];
 
@@ -77,7 +78,7 @@ hold off
 K_eva = zeros(3);
 
 err_n = zeros(3,dot_num);
-err_var = 25;
+err_var = 0;
 kk=0;
 
 
@@ -139,15 +140,19 @@ title('Imaging Plane at Z=1');
 grid on;                % 显示网格
 view(-30, 30);         % 调整视角（方位角-30°，俯仰角30°）
 hold off
-%%%
-% sphere1_d_c =sphere1_d./sphere1_d(3,:);
-% sphere2_d_c =sphere2_d./sphere2_d(3,:);
-% sphere3_d_c =sphere3_d./sphere3_d(3,:);
-% plot(sphere1_d_c(1,:),sphere1_d_c(2,:),'d',sphere2_d_c(1,:),sphere2_d_c(2,:),'d',sphere3_d_c(1,:),sphere3_d_c(2,:),'d');
-% 
+%% 
+sphere1_d_c =sphere1_d./sphere1_d(3,:);
+sphere2_d_c =sphere2_d./sphere2_d(3,:);
+sphere3_d_c =sphere3_d./sphere3_d(3,:);
+sphere1_d_c(1,100)=100
+sphere1_d_c(2,100)=100
+sphere1_d_c(1,50)=100
+sphere1_d_c(2,50)=100
+plot(sphere1_d_c(1,:),sphere1_d_c(2,:),'d',sphere2_d_c(1,:),sphere2_d_c(2,:),'d',sphere3_d_c(1,:),sphere3_d_c(2,:),'d');
+
 
 %% 
-eq = 1;
+eq = 100;
 for jjj = 1:eq
 sphere1_d_c =K *  sphere1_d;
 sphere2_d_c =K *  sphere2_d;
@@ -258,10 +263,11 @@ plot(sphere1_d_c(1,:),sphere1_d_c(2,:),'d',sphere2_d_c(1,:),sphere2_d_c(2,:),'d'
     V = V(:,end);
     % step3: 使用cholesky分解求解K
     circleK = getKMat(V);
-    if ~isreal(circleK)
-        kk=kk+1;
-        continue
-    end
+    % if ~isreal(circleK)
+    %     kk=kk+1;
+    %     kk
+    %     continue
+    % end
     K_eva = circleK+K_eva;
     K_look = K_eva/jjj;
 

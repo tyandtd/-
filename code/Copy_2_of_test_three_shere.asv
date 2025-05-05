@@ -1,7 +1,7 @@
 %% 初始控制，和基本参数生成
 clear
 clc
-f = 600;aph = 1.1; s =0; u0 = 320; v0 = 240;
+f = 600;aph = 1.1; s =1; u0 = 320; v0 = 240;
 K = [aph*f s u0 ; 0 f v0 ; 0 0 1];%生成初始参数
 c_point_T = [0,0,0,1];
 % 设置一个外参数
@@ -13,14 +13,15 @@ c_point = [c_point(1),c_point(2),c_point(3),1];
 %aaa=RTMat1*c_point'
 
 %% 球生成
+
 %半径
-sphere1_r =20;
-sphere2_r = 30;
-sphere3_r = 30;
+sphere1_r = 10;
+sphere2_r = 10;
+sphere3_r = 5;
 %投影球球心
-sphere1_c = [51,0,0,1];
-sphere2_c = [-30,-10,20,1];
-sphere3_c = [20,-50,50,1];
+sphere1_c = [0,0,80,1];
+sphere2_c = [1280/65,0,5040/65,1];
+sphere3_c = [51,20,40,1];
 
 
 %投影圆上的点
@@ -33,7 +34,7 @@ sphere1_c2c = sphere1_c2c/sqrt(sphere1_c2c*sphere1_c2c');
 sphere2_c2c = sphere2_c2c/sqrt(sphere2_c2c*sphere2_c2c');
 sphere3_c2c = sphere3_c2c/sqrt(sphere3_c2c*sphere3_c2c');
 %确定圆上的任意一条单位向量
-danwei1 = [-sphere1_c2c(2)/sphere1_c2c(1),1,0];
+danwei1 = [1,0,-sphere1_c2c(1)/sphere1_c2c(3)];
 danwei2 = [-sphere2_c2c(2)/sphere2_c2c(1),1,0];
 danwei3 = [-sphere3_c2c(2)/sphere3_c2c(1),1,0];
 
@@ -77,7 +78,7 @@ hold off
 K_eva = zeros(3);
 
 err_n = zeros(3,dot_num);
-err_var = 25;
+err_var = 025;
 kk=0;
 
 
@@ -89,9 +90,9 @@ sphere1_d = RTMat1* sphere1_d;
 sphere2_d = RTMat1* sphere2_d;
 sphere3_d = RTMat1* sphere3_d;
 
-sphere1_c = RTMat1* sphere1_c'
-sphere2_c = RTMat1* sphere2_c'
-sphere3_c = RTMat1* sphere3_c'
+sphere1_c = RTMat1* sphere1_c';
+sphere2_c = RTMat1* sphere2_c';
+sphere3_c = RTMat1* sphere3_c';
 
 % sphere1_d = RTMat1* sphere1_d;
 % sphere2_d = RTMat1* sphere2_d;
@@ -139,15 +140,19 @@ title('Imaging Plane at Z=1');
 grid on;                % 显示网格
 view(-30, 30);         % 调整视角（方位角-30°，俯仰角30°）
 hold off
-%%%
-% sphere1_d_c =sphere1_d./sphere1_d(3,:);
-% sphere2_d_c =sphere2_d./sphere2_d(3,:);
-% sphere3_d_c =sphere3_d./sphere3_d(3,:);
-% plot(sphere1_d_c(1,:),sphere1_d_c(2,:),'d',sphere2_d_c(1,:),sphere2_d_c(2,:),'d',sphere3_d_c(1,:),sphere3_d_c(2,:),'d');
-% 
+%% 
+sphere1_d_c =sphere1_d./sphere1_d(3,:);
+sphere2_d_c =sphere2_d./sphere2_d(3,:);
+sphere3_d_c =sphere3_d./sphere3_d(3,:);
+sphere1_d_c(1,100)=100;
+sphere1_d_c(2,100)=100;
+sphere1_d_c(1,50)=100;
+sphere1_d_c(2,50)=100;
+plot(sphere1_d_c(1,:),sphere1_d_c(2,:),'d',sphere2_d_c(1,:),sphere2_d_c(2,:),'d',sphere3_d_c(1,:),sphere3_d_c(2,:),'d');
+
 
 %% 
-eq = 1;
+eq = 1000;
 for jjj = 1:eq
 sphere1_d_c =K *  sphere1_d;
 sphere2_d_c =K *  sphere2_d;
@@ -159,6 +164,7 @@ sphere3_c = K * sphere3_c;
 
 err_n = zeros(3,dot_num);
 err_n(1:2,:) = randn(2,dot_num)*sqrt(err_var);
+%err_n(1:2,:)
 sphere1_d_c = sphere1_d_c ./sphere1_d_c(3,:) + err_n;
 err_n(1:2,:) = randn(2,dot_num)*sqrt(err_var);
 sphere2_d_c = sphere2_d_c ./sphere2_d_c(3,:)+ err_n;
@@ -209,24 +215,24 @@ plot(sphere1_d_c(1,:),sphere1_d_c(2,:),'d',sphere2_d_c(1,:),sphere2_d_c(2,:),'d'
     %% 由公共自极三点形得到无穷远直线与投影球心
     %1和2，检查椭圆外的点
     for i = 1:3
-        if V1(:,i)' * ellipse2 * V1(:,i) > 0
-            if V1(:,i)' * ellipse1 * V1(:,i) > 0
+        if V1(:,i)' * ellipse2 * V1(:,i) > 0.1
+            if V1(:,i)' * ellipse1 * V1(:,i) > 0.1
                  out_dot1 = V1(:,i)/V1(3,i);
             end
         end
     end
     %1和3，球投影外极点
     for i = 1:3
-        if V2(:,i)' * ellipse1 * V2(:,i) > 0
-            if V2(:,i)' * ellipse3 * V2(:,i) > 0
+        if V2(:,i)' * ellipse1 * V2(:,i) > 0.1
+            if V2(:,i)' * ellipse3 * V2(:,i) > 0.1
                 out_dot2 = V2(:,i)/V2(3,i);
             end
         end
     end
     %2和3，球投影外极点
     for i = 1:3
-        if V3(:,i)' * ellipse3 * V3(:,i) > 0
-            if V3(:,i)' * ellipse2 * V3(:,i) > 0
+        if V3(:,i)' * ellipse3 * V3(:,i) > 0.1
+            if V3(:,i)' * ellipse2 * V3(:,i) > 0.1
                 out_dot3 = V3(:,i)/V3(3,i);
             end
         end
@@ -266,7 +272,7 @@ plot(sphere1_d_c(1,:),sphere1_d_c(2,:),'d',sphere2_d_c(1,:),sphere2_d_c(2,:),'d'
     K_look = K_eva/jjj;
 
 end
-
+K_eva
 
 K_eva = K_eva / (eq-kk);
 % step4: 计算误差
