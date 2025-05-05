@@ -139,6 +139,9 @@ title('Imaging Plane at Z=1');
 % axis equal;             % 保持坐标轴比例一致
 grid on;                % 显示网格
 view(-30, 30);         % 调整视角（方位角-30°，俯仰角30°）
+plot_plane(sphere1_c2c(1:3),sphere1_c(1:3));
+plot_plane(sphere2_c2c(1:3),sphere2_c(1:3));
+plot_plane(sphere3_c2c(1:3),sphere3_c(1:3));
 hold off
 %% 
 sphere1_d_c =sphere1_d./sphere1_d(3,:);

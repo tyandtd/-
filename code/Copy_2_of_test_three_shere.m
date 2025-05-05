@@ -78,7 +78,7 @@ hold off
 K_eva = zeros(3);
 
 err_n = zeros(3,dot_num);
-err_var = 025;
+err_var = 0;
 kk=0;
 
 
